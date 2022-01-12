@@ -2,6 +2,9 @@ import pygame
 import sys, os
 
 
+tileSize = 64
+
+
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, size):
         super().__init__()
@@ -37,13 +40,14 @@ class Player:
 class render:
     def __init__(self, level_data, surface):
         self.display_surface = surface
-        self.currentLevel = fullname = os.path.join('data', "level_1.txt")
+        self.currentLevel = os.path.join('data', "level_1.txt")
         self.setup_level()
         self.world_shift = 0
 
     def setup_level(self, layout):
         tile_size = 64
         self.tiles = pygame.sprite.Group()
+        self.player = pygame.sprite.GroupSingle()
         for row_i, row in enumerate(layout):
             for col_i, col in enumerate(row):
                 #print(f'{row_i},{col_i}:{col}')
@@ -56,10 +60,47 @@ class render:
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
     
-    def setLevel(self,level):
-        level = "level"
+    def setLevel(self, level):
+        currentLevel = "level"
+        currentLevel += str(level)
+        self.currentLevel = os.path.join('data', f'{currentLevel}.txt')
 
-        self.currentLevel = fullname = os.path.join('data', "level_1.txt")
+
+
+    def setup_level(self, layout):
+        self.tiles = pygame.sprite.Group()
+        self.player = pygame.sprite.GroupSingle()
+        for row_i, row in enumerate(layout):
+            for col_i, col in enumerate(row):
+                #print(f'{row_i},{col_i}:{col}')
+                x, y = col_i * tileSize, row_i * tileSize
+
+                if col == '1':
+                    tile = Tile((x, y), tileSize)
+                    self.tiles.add(tile)
+
+                if col == 'p':  # p это player
+                    player_sprite = Player((x, y))
+                    self.player.add(player_sprite)
+    def run(self):
+        self.tiles.update(self.world_shift)
+        self.tiles.draw(self.display_surface)
+        self.player.draw(self.display_surface)
+        self.player.update()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -73,10 +114,23 @@ world_shift = 0
 
 while True:
     for event in pygame.event.get():
+        key = pygame.key.get_pressed()
+        currentPos = Player.getPos()
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if 
+        if key[pygame.K_RIGHT]:
+            if currentPos[0] < 1200:
+                Player.setPos(currentPos[0], currentPos[1] + 5)
+        if key[pygame.K_LEFT]:
+            if currentPos[0] > 0:
+                Player.setPos(currentPos[0], currentPos[1] - 5)
+        if key[pygame.K_UP]:
+            if currentPos[0] > 0:
+                Player.setPos(currentPos[0] + 5, currentPos[1])
+        if key[pygame.K_DOWN]:
+            if currentPos[0] < 700:
+                Player.setPos(currentPos[0] -51, currentPos[1])
         pygame.display.update()
         clock.tick(60)
 
