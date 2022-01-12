@@ -65,8 +65,7 @@ class render:
         currentLevel += str(level)
         self.currentLevel = os.path.join('data', f'{currentLevel}.txt')
 
-
-
+"""
     def setup_level(self, layout):
         self.tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
@@ -87,8 +86,7 @@ class render:
         self.tiles.draw(self.display_surface)
         self.player.draw(self.display_surface)
         self.player.update()
-
-
+""""
 
 
 
