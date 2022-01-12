@@ -92,16 +92,6 @@ class render:
 
 
 
-
-
-
-
-
-
-
-
-
-
 pygame.init()
 width, height = 1200, 700
 screen = pygame.display.set_mode((width, height))
