@@ -12,41 +12,6 @@ player_sprite = pygame.sprite.Group()
 tiles_sprite = pygame.sprite.Group()
 
 
-# tile_size = 64
-# screen_width = 1200
-# screen_height = len(level_map) * tile_size
-
-
-# class Level:
-#     def __init__(self, level_data, surface):
-#         self.display_surface = surface
-#         self.setup_level(level_data)
-#         self.world_shift = 0
-#         self.tile_size = 64
-#
-#     def setup_level(self, layout):
-#         self.tiles = pygame.sprite.Group()
-#         self.player = pygame.sprite.GroupSingle()
-#         for row_i, row in enumerate(layout):
-#             for col_i, col in enumerate(row):
-#                 #print(f'{row_i},{col_i}:{col}')
-#                 x, y = col_i * self.tile_size, row_i * self.tile_size
-#
-#                 if col == '1':
-#                     tile = Tile((x, y), self.tile_size)
-#                     self.tiles.add(tile)
-#
-#                 if col == 'p':  # p это player
-#                     player_sprite = Player((x, y))
-#                     self.player.add(player_sprite)
-#
-#     def run(self):
-#         self.tiles.update(self.world_shift)
-#         self.tiles.draw(self.display_surface)
-#         self.player.draw(self.display_surface)
-#         self.player.update()
-
-
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     image = pygame.image.load(fullname).convert()
@@ -72,7 +37,6 @@ def generate_level(level):
     new_player, x, y = None, None, None
     for y in range(len(level)):
         for x in range(len(level[y])):
-            print(y, x)
             if level[y][x] == '1':
                 Tile('dirt', x, y)
             elif level[y][x] == '2':
@@ -100,33 +64,32 @@ class Player(pygame.sprite.Sprite):
         self.axis = pygame.math.Vector2(0, 0)
         self.speed = 5
 
-    def get_input(self):
-        keys = pygame.key.get_pressed()
+    # def get_input(self):
+    #     keys = pygame.key.get_pressed()
+    #
+    #     if keys[pygame.K_RIGHT]:
+    #         self.axis.x = 1
+    #     elif keys[pygame.K_LEFT]:
+    #         self.axis.x = -1
+    #     else:
+    #         self.axis.x = 0
+    #
+    # def update(self):
+    #     self.get_input()
+    #     self.rect.x += self.axis.x * self.speed
 
-        if keys[pygame.K_RIGHT]:
-            self.axis.x = 1
-        elif keys[pygame.K_LEFT]:
-            self.axis.x = -1
-        else:
-            self.axis.x = 0
-
-    def update(self):
-        self.get_input()
-        self.rect = self.rect.move(self.axis.x * self.speed, self.axis.y * self.speed)
-
-
-# class Tile(pygame.sprite.Sprite):
-#     def __init__(self, pos, size):
-#         super().__init__()
-#         self.image = pygame.Surface((size, size))
-#         self.image.fill('white')    # цвет преград выберем сёдня
-#         self.rect = self.image.get_rect(topleft=pos)
-#
-#     def update(self, x_shift):
-#         self.rect.x += x_shift
+    # def update(self):
+    #     if not pygame.sprite.spritecollideany(self, tiles_sprite):
+    #         self.rect = self.rect.move(0, 5)
+    #     keys = pygame.key.get_pressed()
+    #     if keys[pygame.K_RIGHT]:
+    #         self.rect = self.rect.move(5, 0)
+    #     elif keys[pygame.K_LEFT]:
+    #         self.rect = self.rect.move(-5, 0)
+    #     elif keys[pygame.K_UP]:
+    #         self.rect = self.rect.move(0, -10)
 
 
-# level = Level(level_map, screen)
 background = pygame.transform.scale(load_image('background.png'), (width, height))
 tile_images = {'dirt': load_image('dirt.png'), 'grass': load_image('grass.png'), 'sign': load_image('sign.png', -1)}
 player, lvl_x, lvl_y = generate_level(load_level('level_1.txt'))
@@ -137,6 +100,7 @@ while True:
             pygame.quit()
             sys.exit()
     screen.fill(pygame.Color('black'))
+    player_sprite.update()
     screen.blit(background, (0, 0))
     tiles_sprite.draw(screen)
     player_sprite.draw(screen)
