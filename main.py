@@ -1,7 +1,6 @@
 import pygame
 import sys, os
 
-"""
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, size):
         super().__init__()
@@ -11,7 +10,6 @@ class Tile(pygame.sprite.Sprite):
 
     def update(self, x_shift):
         self.rect.x += x_shift
-"""
 
 class Player1:
     def __init__(self):
@@ -42,7 +40,7 @@ class Render:
         self.currentLevel = [[]]
         self.setLevel(1)
         self.world_shift = 0
-        self.setup_level()
+        self.setup_level(surface)
         
 
     def setup_level(self, layout):
@@ -73,6 +71,7 @@ class Render:
             for n2 in n1:
                 if n2 != '\n':
                     self.currentLevel[times].append(n2)
+            self.currentLevel.append([])
             times += 1
 
 
@@ -87,22 +86,22 @@ world_shift = 0
 while True:
     for event in pygame.event.get():
         key = pygame.key.get_pressed()
-        currentPos = Player1.getPos()
+        currentPos = Player1().getPos( )
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         if key[pygame.K_RIGHT]:
             if currentPos[0] < 1200:
-                Player1.setPos(currentPos[0], currentPos[1] + 5)
+                Player1().setPos(currentPos[0], currentPos[1] + 5)
         if key[pygame.K_LEFT]:
             if currentPos[0] > 0:
-                Player1.setPos(currentPos[0], currentPos[1] - 5)
+                Player1().setPos(currentPos[0], currentPos[1] - 5)
         if key[pygame.K_UP]:
             if currentPos[1] > 0:
-                Player1.setPos(currentPos[0], currentPos[1] + 5)
+                Player1().setPos(currentPos[0], currentPos[1] + 5)
         if key[pygame.K_DOWN]:
             if currentPos[1] < 700:
-                Player1.setPos(currentPos[0], currentPos[1] - 5)
-        Render.run()
+                Player1().setPos(currentPos[0], currentPos[1] - 5)
+        Render(screen).run()
         pygame.display.update()
         clock.tick(60)
