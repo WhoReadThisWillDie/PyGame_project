@@ -18,6 +18,8 @@ class Tile(pygame.sprite.Sprite):
 
 class Player:
     def __init__(self):
+        self.posX = 0
+        self.posY = 0
         self.facing = "right"
         self.death = False
     
@@ -37,12 +39,13 @@ class Player:
         return (self.posX, self.posY)
 
 
-class render:
-    def __init__(self, level_data, surface):
+class Render:
+    def __init__(self, surface):
         self.display_surface = surface
         self.currentLevel = os.path.join('data', "level_1.txt")
         self.setup_level()
         self.world_shift = 0
+        
 
     def setup_level(self, layout):
         tile_size = 64
@@ -59,11 +62,14 @@ class render:
     def run(self):
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
+        self.player.draw(self.display_surface)
+        self.player.update()
     
     def setLevel(self, level):
         currentLevel = "level"
         currentLevel += str(level)
         self.currentLevel = os.path.join('data', f'{currentLevel}.txt')
+
 
 """
     def setup_level(self, layout):
@@ -81,13 +87,14 @@ class render:
                 if col == 'p':  # p это player
                     player_sprite = Player((x, y))
                     self.player.add(player_sprite)
+
+
     def run(self):
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
         self.player.draw(self.display_surface)
         self.player.update()
-""""
-
+"""
 
 
 
@@ -97,7 +104,6 @@ width, height = 1200, 700
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 screen.fill('black')
-fullname = os.path.join('data', "level_1.txt")
 world_shift = 0
 
 while True:
@@ -119,6 +125,7 @@ while True:
         if key[pygame.K_DOWN]:
             if currentPos[0] < 700:
                 Player.setPos(currentPos[0] -51, currentPos[1])
+        Render.run()
         pygame.display.update()
         clock.tick(60)
 
