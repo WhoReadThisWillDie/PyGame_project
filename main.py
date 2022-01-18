@@ -40,21 +40,22 @@ class Render:
         self.currentLevel = [[]]
         self.setLevel(1)
         self.world_shift = 0
+        self.tiles = pygame.sprite.Group()
+        self.player = pygame.sprite.GroupSingle()
         self.setup_level(surface)
-        
+          
 
     def setup_level(self, layout):
         tile_size = 64
         self.tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
-        for row_i, row in enumerate(layout):
-            for col_i, col in enumerate(row):
-                #print(f'{row_i},{col_i}:{col}')
+        for row in range(layout[0]):
+            for col in range(layout[1]):
                 if col == '1':
-                    x, y = col_i * tile_size, row_i * tile_size
+                    x, y = col * tile_size, row * tile_size
                     tile = Tile((x, y), tile_size)
                     self.tiles.add(tile)
-
+    
     def run(self):
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
@@ -62,7 +63,7 @@ class Render:
         self.player.update()
     
     def setLevel(self, level):
-        currentLevel = "level_"
+        currentLevel = "levels/level_"
         currentLevel += str(level)
         with open(f"{currentLevel}.txt") as text1:
             text = text1.readlines()
@@ -75,6 +76,22 @@ class Render:
             times += 1
 
 
+"""
+    def setup_level(self, layout):
+        tile_size = 64
+        self.tiles = pygame.sprite.Group()
+        self.player = pygame.sprite.GroupSingle()
+        for row_i, row in enumerate(layout):
+            for col_i, col in enumerate(row):
+                if col == '1':
+                    x, y = col_i * tile_size, row_i * tile_size
+                    tile = Tile((x, y), tile_size)
+                    self.tiles.add(tile)
+"""
+
+class Intro:
+    def __init__(self):
+        pass
 
 
 pygame.init()
