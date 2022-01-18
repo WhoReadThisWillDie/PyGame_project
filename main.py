@@ -58,9 +58,10 @@ class Tile(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_sprite, all_sprites)
-        self.image = pygame.Surface((tile_size, tile_size))
-        self.image.fill('red')
-        self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y + 5)
+        self.image = load_image('player.png', -1)
+        # self.image = pygame.image.load('data/player2.png').convert()
+        # self.image.set_colorkey(-1)
+        self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y - 15)
         self.axis = pygame.math.Vector2(0, 0)
         self.speed = 5
 
@@ -78,16 +79,16 @@ class Player(pygame.sprite.Sprite):
     #     self.get_input()
     #     self.rect.x += self.axis.x * self.speed
 
-    # def update(self):
-    #     if not pygame.sprite.spritecollideany(self, tiles_sprite):
-    #         self.rect = self.rect.move(0, 5)
-    #     keys = pygame.key.get_pressed()
-    #     if keys[pygame.K_RIGHT]:
-    #         self.rect = self.rect.move(5, 0)
-    #     elif keys[pygame.K_LEFT]:
-    #         self.rect = self.rect.move(-5, 0)
-    #     elif keys[pygame.K_UP]:
-    #         self.rect = self.rect.move(0, -10)
+    def update(self):
+        if not pygame.sprite.spritecollideany(self, tiles_sprite):
+            self.rect = self.rect.move(0, 5)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RIGHT]:
+            self.rect = self.rect.move(5, 0)
+        elif keys[pygame.K_LEFT]:
+            self.rect = self.rect.move(-5, 0)
+        elif keys[pygame.K_UP]:
+            self.rect = self.rect.move(0, -10)
 
 
 background = pygame.transform.scale(load_image('background.png'), (width, height))
@@ -106,5 +107,3 @@ while True:
     player_sprite.draw(screen)
     pygame.display.update()
     clock.tick(60)
-
-
