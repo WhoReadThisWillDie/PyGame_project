@@ -58,37 +58,28 @@ class Tile(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_sprite, all_sprites)
-        self.image = load_image('player.png', -1)
-        # self.image = pygame.image.load('data/player2.png').convert()
-        # self.image.set_colorkey(-1)
+        Player.image_right = load_image('player.png', -1)
+        Player.image_left = pygame.transform.flip(Player.image_right, True, False)
+        self.image = Player.image_right
         self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y - 15)
         self.axis = pygame.math.Vector2(0, 0)
-        self.speed = 5
+        self.x_speed = 7
+        self.y_speed = 5
 
-    # def get_input(self):
-    #     keys = pygame.key.get_pressed()
-    #
-    #     if keys[pygame.K_RIGHT]:
-    #         self.axis.x = 1
-    #     elif keys[pygame.K_LEFT]:
-    #         self.axis.x = -1
-    #     else:
-    #         self.axis.x = 0
-    #
-    # def update(self):
-    #     self.get_input()
-    #     self.rect.x += self.axis.x * self.speed
+    def get_input(self):
+        keys = pygame.key.get_pressed()
+        self.axis.x = 0
+        self.axis.y = 0
+        if keys[pygame.K_LEFT]:
+            self.axis.x = -1
+            self.image = Player.image_left
+        if keys[pygame.K_RIGHT]:
+            self.axis.x = 1
+            self.image = Player.image_right
 
     def update(self):
-        if not pygame.sprite.spritecollideany(self, tiles_sprite):
-            self.rect = self.rect.move(0, 5)
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_RIGHT]:
-            self.rect = self.rect.move(5, 0)
-        elif keys[pygame.K_LEFT]:
-            self.rect = self.rect.move(-5, 0)
-        elif keys[pygame.K_UP]:
-            self.rect = self.rect.move(0, -10)
+        self.get_input()
+        self.rect = self.rect.move(self.axis.x * self.x_speed, self.axis.y * self.y_speed)
 
 
 background = pygame.transform.scale(load_image('background.png'), (width, height))
