@@ -7,6 +7,9 @@ screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 tile_size = 50
 
+hero_width = 50
+hero_height = 64
+
 all_sprites = pygame.sprite.Group()
 player_sprite = pygame.sprite.Group()
 tiles_sprite = pygame.sprite.Group()
@@ -63,23 +66,44 @@ class Player(pygame.sprite.Sprite):
         self.image = Player.image_right
         self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y - 15)
         self.axis = pygame.math.Vector2(0, 0)
-        self.x_speed = 7
-        self.y_speed = 5
-
-    def get_input(self):
-        keys = pygame.key.get_pressed()
-        self.axis.x = 0
-        self.axis.y = 0
-        if keys[pygame.K_LEFT]:
-            self.axis.x = -1
-            self.image = Player.image_left
-        if keys[pygame.K_RIGHT]:
-            self.axis.x = 1
-            self.image = Player.image_right
+        self.can_jump = True
 
     def update(self):
-        self.get_input()
-        self.rect = self.rect.move(self.axis.x * self.x_speed, self.axis.y * self.y_speed)
+        keys = pygame.key.get_pressed()
+        self.axis.x = 0
+        y_speed = 0
+        if keys[pygame.K_LEFT]:
+            self.axis.x = -5
+            self.image = Player.image_left
+        if keys[pygame.K_RIGHT]:
+            self.axis.x = 5
+            self.image = Player.image_right
+        if keys[pygame.K_UP] and self.can_jump:
+            self.axis.y = -20
+            self.can_jump = False
+        if not keys[pygame.K_UP]:
+            self.can_jump = True
+
+        self.axis.y += 1
+        if self.axis.y > 10:
+            self.axis.y = 10
+        y_speed += self.axis.y
+
+        self.can_jump = False
+        for sprite in tiles_sprite:
+            if sprite.rect.colliderect(self.rect.x + self.axis.x, self.rect.y, hero_width, hero_height):
+                self.axis.x = 0
+            if sprite.rect.colliderect(self.rect.x, self.rect.y + y_speed, hero_width, hero_height):
+                if self.axis.y < 0:
+                    y_speed = sprite.rect.bottom - self.rect.top
+                    self.axis.y = 0
+                elif self.axis.y >= 0:
+                    y_speed = sprite.rect.top - self.rect.bottom
+                    self.can_jump = True
+                    self.axis.y = 0
+
+        self.rect.x += self.axis.x
+        self.rect.y += y_speed
 
 
 background = pygame.transform.scale(load_image('background.png'), (width, height))
