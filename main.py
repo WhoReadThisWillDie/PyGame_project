@@ -1,18 +1,20 @@
 import pygame
 import sys, os
-
 pygame.init()
 width, height = 1200, 900
 screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 tile_size = 50
 
+score = 0
+
 hero_width = 50
-hero_height = 64
+hero_height = 66
 
 all_sprites = pygame.sprite.Group()
 player_sprite = pygame.sprite.Group()
 tiles_sprite = pygame.sprite.Group()
+coins_sprite = pygame.sprite.Group()
 
 
 def load_image(name, colorkey=None):
@@ -48,7 +50,18 @@ def generate_level(level):
                 new_player = Player(x, y)
             elif level[y][x] == '3':
                 Tile('sign', x, y)
+            elif level[y][x] == '4':
+                Coin(x, y)
     return new_player, x, y
+
+
+def update_score(score, x, y):
+    font = pygame.font.Font(None, 50)
+    img = load_image('coin.png', -1)
+    img = pygame.transform.scale(img, (50, 50))
+    count = font.render(score, True, pygame.Color('black'))
+    screen.blit(img, (x, y))
+    screen.blit(count, (x + 50, y + 8))
 
 
 class Tile(pygame.sprite.Sprite):
@@ -58,17 +71,26 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
 
 
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(coins_sprite, all_sprites)
+        self.image = load_image('coin.png', -1)
+        self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
         super().__init__(player_sprite, all_sprites)
         Player.image_right = load_image('player.png', -1)
         Player.image_left = pygame.transform.flip(Player.image_right, True, False)
         self.image = Player.image_right
-        self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y - 15)
+        self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y - 50)
         self.axis = pygame.math.Vector2(0, 0)
-        self.can_jump = True
+        self.can_jump = False
+        self.on_ground = True
 
     def update(self):
+        global score
         keys = pygame.key.get_pressed()
         self.axis.x = 0
         y_speed = 0
@@ -78,15 +100,15 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT]:
             self.axis.x = 5
             self.image = Player.image_right
-        if keys[pygame.K_UP] and self.can_jump:
+        if keys[pygame.K_UP] and self.can_jump and self.on_ground:
             self.axis.y = -20
-            self.can_jump = False
+            self.on_ground = False
         if not keys[pygame.K_UP]:
-            self.can_jump = True
+            self.on_ground = True
 
         self.axis.y += 1
-        if self.axis.y > 10:
-            self.axis.y = 10
+        if self.axis.y > 15:
+            self.axis.y = 15
         y_speed += self.axis.y
 
         self.can_jump = False
@@ -101,6 +123,9 @@ class Player(pygame.sprite.Sprite):
                     y_speed = sprite.rect.top - self.rect.bottom
                     self.can_jump = True
                     self.axis.y = 0
+
+        if pygame.sprite.spritecollide(self, coins_sprite, True):
+            score += 1
 
         self.rect.x += self.axis.x
         self.rect.y += y_speed
@@ -119,6 +144,8 @@ while True:
     player_sprite.update()
     screen.blit(background, (0, 0))
     tiles_sprite.draw(screen)
+    coins_sprite.draw(screen)
     player_sprite.draw(screen)
+    update_score(str(score), 5, 5)
     pygame.display.update()
     clock.tick(60)
