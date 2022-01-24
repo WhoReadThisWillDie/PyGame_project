@@ -7,9 +7,166 @@ screen = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 tile_size = 50
 
+score = 0
+old_score = 0
+
+lvls = ['level_1.txt', 'level_2.txt', 'level_3.txt']
+current_lvl = 0
+lvl_passed = False
+finish_coords = [(1000, 84), (1100, 634), (1100, 784)]
+
+hero_width = 50
+hero_height = 66
+
+enemyWidth = 40
+enemyHeight = 40
+
 all_sprites = pygame.sprite.Group()
 player_sprite = pygame.sprite.Group()
 tiles_sprite = pygame.sprite.Group()
+coins_sprite = pygame.sprite.Group()
+# enemy_sprite = pygame.sprite.Group()
+
+level1Test = False
+level2Test = False
+level3Test = False
+
+pygame.init()
+
+SCREEN = pygame.display.set_mode((1200, 900))
+pygame.display.set_caption("Menu")
+
+BG = pygame.image.load("assets/Background.png")
+
+
+class Button():
+
+    def __init__(self, image, pos, text_input, font, base_color, hovering_color):
+        self.image = image
+        self.x_pos = pos[0]
+        self.y_pos = pos[1]
+        self.font = font
+        self.base_color, self.hovering_color = base_color, hovering_color
+        self.text_input = text_input
+        self.text = self.font.render(self.text_input, True, self.base_color)
+        if self.image is None:
+            self.image = self.text
+        self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
+        self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
+
+    def update(self, screen):
+        if self.image is not None:
+            screen.blit(self.image, self.rect)
+        screen.blit(self.text, self.text_rect)
+
+    def input_check(self, position):
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
+                                                                                          self.rect.bottom):
+            return True
+        return False
+
+    def color_change(self, position):
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
+                                                                                          self.rect.bottom):
+            self.text = self.font.render(self.text_input, True, self.hovering_color)
+        else:
+            self.text = self.font.render(self.text_input, True, self.base_color)
+
+
+def get_font(size):
+    return pygame.font.Font("assets/font.ttf", size)
+
+
+def play():
+    while True:
+        play_mouse_position = pygame.mouse.get_pos()
+
+        SCREEN.fill("black")
+
+        play_text_btn = get_font(45).render("This is the PLAY screen.", True, "White")
+        play_rect_btn = play_text_btn.get_rect(center=(640, 260))
+        SCREEN.blit(play_text_btn, play_rect_btn)
+
+        play_bc = Button(image=None, pos=(640, 460),
+                         text_input="BACK", font=get_font(75), base_color="White", hovering_color="Green")
+
+        play_bc.color_change(play_mouse_position)
+        play_bc.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if play_bc.input_check(play_mouse_position):
+                    main_menu()
+
+        pygame.display.update()
+
+
+def options():
+    while True:
+        options_mouse_position = pygame.mouse.get_pos()
+
+        SCREEN.fill("white")
+
+        options_text = get_font(45).render("This is the OPTIONS screen.", True, "Black")
+        options_rect = options_text.get_rect(center=(640, 260))
+        SCREEN.blit(options_text, options_rect)
+
+        options_bc = Button(image=None, pos=(640, 460),
+                            text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
+
+        options_bc.color_change(options_mouse_position)
+        options_bc.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if options_bc.input_check(options_mouse_position):
+                    main_menu()
+
+        pygame.display.update()
+
+
+def main_menu():
+    while True:
+        SCREEN.blit(BG, (0, 0))
+
+        menu_mouse_position = pygame.mouse.get_pos()
+
+        menu_text = get_font(100).render("MAIN MENU", True, "#b68f40")
+        menu_rect = menu_text.get_rect(center=(640, 100))
+
+        play_btn = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 250),
+                          text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        options_btn = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(640, 400),
+                             text_input="RECORDS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        quit_btn = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(640, 550),
+                          text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+
+        SCREEN.blit(menu_text, menu_rect)
+
+        for button in [play_btn, options_btn, quit_btn]:
+            button.color_change(menu_mouse_position)
+            button.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if play_btn.input_check(menu_mouse_position):
+                    play()
+                if options_btn.input_check(menu_mouse_position):
+                    options()
+                if quit_btn.input_check(menu_mouse_position):
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
 
 
 def load_image(name, colorkey=None):
@@ -35,6 +192,7 @@ def load_level(filename):
 
 def generate_level(level):
     new_player, x, y = None, None, None
+    # newEnemy = None
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == '1':
@@ -45,13 +203,34 @@ def generate_level(level):
                 new_player = Player(x, y)
             elif level[y][x] == '3':
                 Tile('sign', x, y)
-    return new_player, x, y
+            elif level[y][x] == 'e':
+                Tile("enemy", x, y)
+            elif level[y][x] == '4':
+                Coin(x, y)
+            # newEnemy = Player.Enemy(x, y)
+    return new_player, x, y  # newEnemy
+
+
+def update_score(score, x, y):
+    font = pygame.font.Font(None, 50)
+    img = load_image('coin.png', -1)
+    img = pygame.transform.scale(img, (50, 50))
+    count = font.render(score, True, pygame.Color('black'))
+    screen.blit(img, (x, y))
+    screen.blit(count, (x + 50, y + 8))
 
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, type, pos_x, pos_y):
         super().__init__(tiles_sprite, all_sprites)
         self.image = tile_images[type]
+        self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
+
+
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(coins_sprite, all_sprites)
+        self.image = load_image('coin.png', -1)
         self.rect = self.image.get_rect().move(tile_size * pos_x, tile_size * pos_y)
 
 
@@ -63,208 +242,112 @@ class Player(pygame.sprite.Sprite):
         self.image = Player.image_right
         self.rect = self.image.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y - 15)
         self.axis = pygame.math.Vector2(0, 0)
-        self.x_speed = 7
-        self.y_speed = 5
+        self.can_jump = False
+        self.on_ground = True
 
-    def get_input(self):
-        keys = pygame.key.get_pressed()
-        self.axis.x = 0
-        self.axis.y = 0
-        if keys[pygame.K_LEFT]:
-            self.axis.x = -1
-            self.image = Player.image_left
-        if keys[pygame.K_RIGHT]:
-            self.axis.x = 1
-            self.image = Player.image_right
+    """
+        Player.EnemyImage = load_image('enemy.png', -1)
+        self.EnemyImage = Player.EnemyImage
+        self.EnemyRect = self.EnemyImage.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y - 15)
+        self.EnemyAxis = pygame.math.Vector2(0, 0)
+        self.EnemyAxis.x = 3
+    def Enemy(self, pos_x, pos_y):
+        Player.EnemyImage = load_image('enemy.png', -1)
+        self.EnemyImage = Player.EnemyImage
+        self.EnemyRect = self.EnemyImage.get_rect().move(tile_size * pos_x + 15, tile_size * pos_y - 15)
+    """
 
     def update(self):
-        self.get_input()
-        self.rect = self.rect.move(self.axis.x * self.x_speed, self.axis.y * self.y_speed)
+        global player, lvl_x, lvl_y
+        global score, old_score, lvls, current_lvl, lvl_passed, finish_coords  # enemy
+        global level1Test, level2Test, level3Test
+        global tiles_sprite, player_sprite
+        keys = pygame.key.get_pressed()
+        self.axis.x = 0
+        y_speed = 0
+        if keys[pygame.K_LEFT]:
+            self.axis.x = -5
+            self.image = Player.image_left
+        if keys[pygame.K_RIGHT]:
+            self.axis.x = 5
+            self.image = Player.image_right
+        if keys[pygame.K_UP] and self.can_jump:
+            self.axis.y = -20
+            self.on_ground = False
+        if not keys[pygame.K_UP]:
+            self.on_ground = True
+
+        self.axis.y += 1
+        if self.axis.y > 15:
+            self.axis.y = 15
+        y_speed += self.axis.y
+
+        self.can_jump = False
+        for sprite in tiles_sprite:
+            if sprite.rect.colliderect(self.rect.x + self.axis.x, self.rect.y, hero_width, hero_height):
+                self.axis.x = 0
+            if sprite.rect.colliderect(self.rect.x, self.rect.y + y_speed, hero_width, hero_height):
+                if self.axis.y < 0:
+                    y_speed = sprite.rect.bottom - self.rect.top
+                    self.axis.y = 0
+                elif self.axis.y >= 0:
+                    y_speed = sprite.rect.top - self.rect.bottom
+                    self.can_jump = True
+                    self.axis.y = 0
+
+            if self.rect.x == finish_coords[current_lvl][0] and self.rect.y == finish_coords[current_lvl][1] \
+                    and current_lvl < len(finish_coords) - 1:
+                self.rect.x = 0
+                self.rect.y = 0
+                player_sprite.empty()
+                player_sprite.update()
+                tiles_sprite.empty()
+                current_lvl += 1
+                old_score = score
+                player, lvl_x, lvl_y = generate_level(load_level(lvls[current_lvl]))
+                tiles_sprite.draw(screen)
+            elif self.rect.x == finish_coords[current_lvl][0] and self.rect.y == finish_coords[current_lvl][1] \
+                    and current_lvl == len(finish_coords) - 1:
+                print('')
+
+        if pygame.sprite.spritecollide(self, coins_sprite, True):
+            score += 1
+
+        self.rect.x += self.axis.x
+        self.rect.y += y_speed
+
+        if keys[pygame.K_r]:
+            score = old_score
+            update_score(str(score), 5, 5)
+            self.rect.x = 0
+            self.rect.y = 0
+            player_sprite.empty()
+            player_sprite.update()
+            tiles_sprite.empty()
+            player, lvl_x, lvl_y = generate_level(load_level(lvls[current_lvl]))
+            tiles_sprite.draw(screen)
+
+            # if sprite.rect.colliderect(self.EnemyRect.x + self.EnemyAxis.x, self.EnemyRect.y, enemyWidth, enemyHeight):
+            #    self.EnemyAxis.x *= -1
 
 
 background = pygame.transform.scale(load_image('background.png'), (width, height))
-tile_images = {'dirt': load_image('dirt.png'), 'grass': load_image('grass.png'), 'sign': load_image('sign.png', -1)}
-player, lvl_x, lvl_y = generate_level(load_level('level_1.txt'))
+tile_images = {'dirt': load_image('dirt.png'), 'grass': load_image('grass.png'), 'sign': load_image('sign.png', -1),
+               "enemy": load_image("enemy.png", -1)}
+player, lvl_x, lvl_y = generate_level(load_level('level_1.txt'))  # enemy
 
-
-class Menu():
-    def __init__(self, game):
-        self.game = game
-        self.mid_w, self.mid_h = self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2
-        self.run_display = True
-        self.cursor_rect = pygame.Rect(0, 0, 20, 20)
-        self.offset = - 100
-
-    def draw_cursor(self):
-        self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
-
-    def blit_screen(self):
-        self.game.window.blit(self.game.display, (0, 0))
-        pygame.display.update()
-        self.game.reset_keys()
-
-
-class MainMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-        self.state = "Start"
-        self.startx, self.starty = self.mid_w, self.mid_h + 30
-        self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50
-        self.creditsx, self.creditsy = self.mid_w, self.mid_h + 70
-        self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
-
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            self.check_input()
-            self.game.display.fill(self.game.BLACK)
-            self.game.draw_text('Main Menu', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
-            self.game.draw_text("Start Game", 20, self.startx, self.starty)
-            self.game.draw_text("Options", 20, self.optionsx, self.optionsy)
-            self.game.draw_text("Credits", 20, self.creditsx, self.creditsy)
-            self.draw_cursor()
-            self.blit_screen()
-
-    def move_cursor(self):
-        if self.game.DOWN_KEY:
-            if self.state == 'Start':
-                self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
-                self.state = 'Options'
-            elif self.state == 'Options':
-                self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
-                self.state = 'Credits'
-            elif self.state == 'Credits':
-                self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
-                self.state = 'Start'
-        elif self.game.UP_KEY:
-            if self.state == 'Start':
-                self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
-                self.state = 'Credits'
-            elif self.state == 'Options':
-                self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
-                self.state = 'Start'
-            elif self.state == 'Credits':
-                self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
-                self.state = 'Options'
-
-    def check_input(self):
-        self.move_cursor()
-        if self.game.START_KEY:
-            if self.state == 'Start':
-                self.game.playing = True
-            elif self.state == 'Options':
-                self.game.curr_menu = self.game.options
-            elif self.state == 'Credits':
-                self.game.curr_menu = self.game.credits
-            self.run_display = False
-
-
-class OptionsMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-        self.state = 'Volume'
-        self.volx, self.voly = self.mid_w, self.mid_h + 20
-        self.controlsx, self.controlsy = self.mid_w, self.mid_h + 40
-        self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
-
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            self.check_input()
-            self.game.display.fill((0, 0, 0))
-            self.game.draw_text('Options', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 30)
-            self.game.draw_text("Volume", 15, self.volx, self.voly)
-            self.game.draw_text("Controls", 15, self.controlsx, self.controlsy)
-            self.draw_cursor()
-            self.blit_screen()
-
-    def check_input(self):
-        if self.game.BACK_KEY:
-            self.game.curr_menu = self.game.main_menu
-            self.run_display = False
-        elif self.game.UP_KEY or self.game.DOWN_KEY:
-            if self.state == 'Volume':
-                self.state = 'Controls'
-                self.cursor_rect.midtop = (self.controlsx + self.offset, self.controlsy)
-            elif self.state == 'Controls':
-                self.state = 'Volume'
-                self.cursor_rect.midtop = (self.volx + self.offset, self.voly)
-        elif self.game.START_KEY:
-            ...
-
-
-'''while True:
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-    
+    main_menu()
     screen.fill(pygame.Color('black'))
     player_sprite.update()
     screen.blit(background, (0, 0))
     tiles_sprite.draw(screen)
+    coins_sprite.draw(screen)
     player_sprite.draw(screen)
+    update_score(str(score), 5, 5)
     pygame.display.update()
     clock.tick(60)
-'''
-
-
-class Game():
-    def __init__(self):
-        pygame.init()
-        self.running, self.playing = True, False
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-        self.DISPLAY_W, self.DISPLAY_H = 1200, 800
-        self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
-        self.window = pygame.display.set_mode(((self.DISPLAY_W, self.DISPLAY_H)))
-        # self.font_name = '8-BIT WONDER.TTF'
-        self.font_name = pygame.font.get_default_font()
-        self.BLACK, self.WHITE = (0, 0, 0), (255, 255, 255)
-        self.main_menu = MainMenu(self)
-        self.options = OptionsMenu(self)
-        self.curr_menu = self.main_menu
-
-    def game_loop(self):
-        while self.playing:
-            self.check_events()
-            if self.START_KEY:
-                self.playing = False
-            self.display.fill(self.BLACK)
-            self.draw_text('Thanks for Playing', 20, self.DISPLAY_W / 2, self.DISPLAY_H / 2)
-            self.window.blit(self.display, (0, 0))
-            pygame.display.update()
-            self.reset_keys()
-
-    def check_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running, self.playing = False, False
-                self.curr_menu.run_display = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    self.START_KEY = True
-                if event.key == pygame.K_BACKSPACE:
-                    self.BACK_KEY = True
-                if event.key == pygame.K_DOWN:
-                    self.DOWN_KEY = True
-                if event.key == pygame.K_UP:
-                    self.UP_KEY = True
-
-    def reset_keys(self):
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-
-    def draw_text(self, text, size, x, y):
-        font = pygame.font.Font(self.font_name, size)
-        text_surface = font.render(text, True, self.WHITE)
-        text_rect = text_surface.get_rect()
-        text_rect.center = (x, y)
-        self.display.blit(text_surface, text_rect)
-
-
-g = Game()
-
-while g.running:
-    g.curr_menu.display_menu()
-    g.game_loop()
