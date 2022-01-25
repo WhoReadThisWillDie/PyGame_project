@@ -131,7 +131,7 @@ class Player(pygame.sprite.Sprite):
         if level2Test:
             con = sqlite3.connect("database.sql")
             cur = con.cursor()
-            cur.execute("""insert ?, ? into records""", ("not ready", 0))
+            cur.execute("""insert into records(time, coins) values ?, ?""", ("not ready", 0))
             con.commit()
             con.close()
 
