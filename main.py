@@ -353,8 +353,6 @@ class Player(pygame.sprite.Sprite):
             spikes_sprite.draw(screen)
             endGame = False
 
-        print(self.rect.x, self.rect.y)
-
 
 background = pygame.transform.scale(load_image('background.png'), (width, height))
 tile_images = {'dirt': load_image('dirt.png'), 'grass': load_image('grass.png'), 'sign': load_image('sign.png', -1)}
