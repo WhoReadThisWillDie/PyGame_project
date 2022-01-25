@@ -14,7 +14,6 @@ endGame = False
 
 lvls = ['level_1.txt', 'level_2.txt', 'level_3.txt']
 current_lvl = 0
-lvl_passed = False
 finish_coords = [(1000, 84), (1100, 634), (1100, 784)]
 
 hero_width = 50
@@ -262,7 +261,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         global player, lvl_x, lvl_y
-        global score, old_score, lvls, current_lvl, lvl_passed, finish_coords, endGame
+        global score, old_score, lvls, current_lvl, finish_coords, endGame
         global ticks, endGame
         global tiles_sprite, player_sprite
         keys = pygame.key.get_pressed()
