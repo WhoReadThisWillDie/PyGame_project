@@ -12,9 +12,9 @@ score = 0
 old_score = 0
 endGame = False
 
-lvls = ['level_1.txt', 'level_2.txt', 'level_3.txt']
+lvls = ['level_1.txt', 'level_2.txt', 'level_3.txt', 'level_4.txt', 'level_5.txt', 'level_6.txt']
 current_lvl = 0
-finish_coords = [(1000, 84), (1100, 634), (1100, 784)]
+finish_coords = [(1100, 334), (1100, 484), (1100, 784), (1000, 84), (1100, 634), (1100, 784)]
 
 hero_width = 50
 hero_height = 66
@@ -309,11 +309,13 @@ class Player(pygame.sprite.Sprite):
                 player_sprite.update()
                 tiles_sprite.empty()
                 spikes_sprite.empty()
+                coins_sprite.empty()
                 current_lvl += 1
                 old_score = score
                 player, lvl_x, lvl_y = generate_level(load_level(lvls[current_lvl]))
                 tiles_sprite.draw(screen)
                 spikes_sprite.draw(screen)
+                coins_sprite.draw(screen)
 
             elif self.rect.x == finish_coords[current_lvl][0] and self.rect.y == finish_coords[current_lvl][1] \
                     and current_lvl == len(finish_coords) - 1 and endGame is False:
@@ -321,6 +323,7 @@ class Player(pygame.sprite.Sprite):
                 con = sqlite3.connect("database.sql")
                 cur = con.cursor()
                 cur.execute("""insert into records(time, coins) values (?, ?)""", (f"{time}s", score))
+                print('thx 4 playing!')
                 con.commit()
                 con.close()
                 pygame.quit()
@@ -345,9 +348,11 @@ class Player(pygame.sprite.Sprite):
             enemies_sprite.update()
             player_sprite.empty()
             player_sprite.update()
+            coins_sprite.empty()
             tiles_sprite.empty()
             spikes_sprite.empty()
             player, lvl_x, lvl_y = generate_level(load_level(lvls[current_lvl]))
+            coins_sprite.draw(screen)
             tiles_sprite.draw(screen)
             spikes_sprite.draw(screen)
             endGame = False
