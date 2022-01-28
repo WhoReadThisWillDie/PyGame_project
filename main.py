@@ -1,4 +1,3 @@
-from calendar import c
 import pygame, sqlite3
 import sys, os
 
@@ -163,8 +162,7 @@ game_over = False
 #                     pygame.quit()
 #                     sys.exit()
 #
-#         pygame.display.update()
-#
+#            pygame.display.update()
 
 
 def load_image(name, colorkey=None):
